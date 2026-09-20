@@ -1,0 +1,430 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>có cái l'</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    color-scheme: light;
+ 
+    --bg: #fff4ea;
+    --hint: #8a7768;
+    --grad: linear-gradient(90deg, #ff2e7e, #ff6a1f, #e63ad0, #7a4dff, #2a7bff, #00a6a6, #ff2e7e);
+    --glow: rgba(255, 46, 126, .32);
+    --halo: rgba(255, 255, 255, .75);
+    --blob-1: rgba(255, 92, 158, .55);
+    --blob-2: rgba(255, 176, 58, .60);
+    --blob-3: rgba(124, 92, 255, .38);
+    --spot: rgba(255, 196, 130, .45);
+    --dot: rgba(120, 70, 40, .16);
+    --spark: 255, 70, 130;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #08060f;
+      --hint: #8f88a8;
+      --grad: linear-gradient(90deg, #ff4d8d, #ff9d3d, #ffe14d, #4dffb8, #4dc3ff, #9b6bff, #ff4d8d);
+      --glow: rgba(255, 80, 170, .50);
+      --halo: rgba(150, 90, 255, .30);
+      --blob-1: rgba(255, 60, 140, .42);
+      --blob-2: rgba(70, 110, 255, .45);
+      --blob-3: rgba(0, 220, 190, .26);
+      --spot: rgba(170, 130, 255, .22);
+      --dot: rgba(255, 255, 255, .14);
+      --spark: 255, 255, 255;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #08060f;
+    --hint: #8f88a8;
+    --grad: linear-gradient(90deg, #ff4d8d, #ff9d3d, #ffe14d, #4dffb8, #4dc3ff, #9b6bff, #ff4d8d);
+    --glow: rgba(255, 80, 170, .50);
+    --halo: rgba(150, 90, 255, .30);
+    --blob-1: rgba(255, 60, 140, .42);
+    --blob-2: rgba(70, 110, 255, .45);
+    --blob-3: rgba(0, 220, 190, .26);
+    --spot: rgba(170, 130, 255, .22);
+    --dot: rgba(255, 255, 255, .14);
+    --spark: 255, 255, 255;
+  }
+ 
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    overflow: hidden;
+    font-family: 'Be Vietnam Pro', 'Arial Black', 'Helvetica Neue', Arial, system-ui, sans-serif;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+ 
+  .stage {
+    position: relative;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+ 
+  /* ---------- nền: vệt màu trôi + lưới chấm + đèn rọi theo con trỏ ---------- */
+  .blob { position: absolute; border-radius: 50%; pointer-events: none; will-change: transform; }
+  .b1 { width: 60vmax; height: 60vmax; left: -18vmax; top: -20vmax;
+        background: radial-gradient(closest-side, var(--blob-1), transparent);
+        animation: drift1 19s ease-in-out infinite alternate; }
+  .b2 { width: 66vmax; height: 66vmax; right: -22vmax; bottom: -26vmax;
+        background: radial-gradient(closest-side, var(--blob-2), transparent);
+        animation: drift2 24s ease-in-out infinite alternate; }
+  .b3 { width: 46vmax; height: 46vmax; left: 30%; top: 25%;
+        background: radial-gradient(closest-side, var(--blob-3), transparent);
+        animation: drift3 28s ease-in-out infinite alternate; }
+  @keyframes drift1 { to { transform: translate(22vmax, 16vmax) scale(1.2); } }
+  @keyframes drift2 { to { transform: translate(-20vmax, -14vmax) scale(.9); } }
+  @keyframes drift3 { to { transform: translate(-16vmax, 14vmax) scale(1.3); } }
+ 
+  .grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(circle, var(--dot) 1.2px, transparent 1.6px);
+    background-size: 30px 30px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 10%, transparent 100%);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 10%, transparent 100%);
+  }
+  .spot {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(circle 34vmax at var(--mx, 50%) var(--my, 50%), var(--spot), transparent);
+  }
+ 
+  /* ---------- chữ chính ---------- */
+  .tilt {
+    position: relative;
+    z-index: 2;
+    isolation: isolate;
+    display: grid;
+    place-items: center;
+    will-change: transform;
+    transform: perspective(1000px);
+  }
+  .halo {
+    position: absolute; left: 50%; top: 50%;
+    width: 130%; height: 220%;
+    translate: -50% -50%;
+    background: radial-gradient(closest-side, var(--halo), transparent);
+    z-index: -1;
+    pointer-events: none;
+    animation: halo 5s ease-in-out infinite alternate;
+  }
+  @keyframes halo { from { scale: .92; opacity: .7; } to { scale: 1.08; opacity: 1; } }
+ 
+  .title {
+    position: relative;
+    margin: 0;
+    display: inline-flex;
+    white-space: nowrap;
+    font-weight: 900;
+    font-size: clamp(3rem, 15vw, 14rem);
+    line-height: 1;
+    letter-spacing: -.02em;
+  }
+  /* dự phòng nếu JS không chạy: cả cụm chữ dùng một dải màu */
+  .title:not(.split) {
+    background-image: var(--grad);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+  }
+  .title.ready { animation: glow 3.6s ease-in-out infinite alternate; }
+  @keyframes glow {
+    from { filter: drop-shadow(0 0 .05em var(--glow)); }
+    to   { filter: drop-shadow(0 0 .16em var(--glow)); }
+  }
+ 
+  /* mỗi chữ cái lấy đúng một lát của dải màu chung, nên màu chạy liền mạch qua cả cụm */
+  .ch {
+    display: inline-block;
+    line-height: 1;
+    padding: .22em .03em;
+    margin: -.22em -.03em;
+    background-image: var(--grad);
+    background-size: var(--tw, 100%) 100%;
+    background-repeat: repeat-x;
+    background-position: calc(var(--shift, 0px) - var(--off, 0px)) 0;
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+    transition: scale .3s cubic-bezier(.3, 1.8, .5, 1);
+  }
+  @media (hover: hover) { .ch:hover { scale: 1.14; } }
+ 
+  .title.split:not(.ready) .ch { opacity: 0; }
+  .title.ready .ch {
+    animation:
+      drop   .95s cubic-bezier(.2, 1.45, .4, 1) calc(var(--i) * 85ms + 150ms) both,
+      reveal .6s  ease-out                      calc(var(--i) * 85ms + 150ms) both,
+      wave   3.4s ease-in-out                   calc(var(--i) * 85ms + 1500ms) infinite;
+  }
+  @keyframes drop   { from { translate: 0 -1.2em; rotate: -16deg; } to { translate: 0 0; rotate: 0deg; } }
+  @keyframes reveal { from { opacity: 0; filter: blur(.14em); } to { opacity: 1; filter: blur(0); } }
+  @keyframes wave   { 0%, 100% { translate: 0 0; rotate: 0deg; } 50% { translate: 0 -.07em; rotate: 1.6deg; } }
+ 
+  /* ---------- gợi ý nhỏ, tự mất sau lần chạm đầu tiên ---------- */
+  .hint {
+    position: absolute; left: 0; right: 0; bottom: 1.5rem;
+    margin: 0; text-align: center; pointer-events: none; z-index: 3;
+    font: 500 .95rem/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: .02em;
+    color: var(--hint);
+    opacity: 0;
+    animation: hint-in 1.2s ease 3.2s forwards;
+  }
+  .hint.gone { animation: hint-out .5s ease forwards; }
+  @keyframes hint-in  { to { opacity: .85; } }
+  @keyframes hint-out { from { opacity: .85; } to { opacity: 0; } }
+ 
+  /* ---------- pháo giấy + hạt sáng ---------- */
+  #fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+ 
+  @media (prefers-reduced-motion: reduce) {
+    .blob, .halo, .title.ready, .title.ready .ch { animation: none; }
+    .hint { animation: none; opacity: .85; }
+  }
+</style>
+</head>
+<body>
+  <canvas id="fx" aria-hidden="true"></canvas>
+ 
+  <main class="stage" id="stage">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+    <div class="grid"></div>
+    <div class="spot"></div>
+ 
+    <div class="tilt" id="tilt">
+      <div class="halo"></div>
+      <h1 class="title" id="title">có cái l'</h1>
+    </div>
+ 
+    <p class="hint" id="hint">chạm hoặc nhấp vào bất kỳ đâu ✨</p>
+  </main>
+ 
+<script>
+(() => {
+  'use strict';
+ 
+  // Muốn đổi chữ thì sửa dòng này
+  const TEXT = "có cái l'".normalize('NFC');
+ 
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const stage  = document.getElementById('stage');
+  const tilt   = document.getElementById('tilt');
+  const title  = document.getElementById('title');
+  const canvas = document.getElementById('fx');
+  const ctx    = canvas.getContext('2d');
+  let hint     = document.getElementById('hint');
+ 
+  let W = innerWidth, H = innerHeight, dpr = 1, tw = 1;
+ 
+  /* 1. Tách chữ thành từng ký tự để mỗi ký tự có chuyển động riêng */
+  title.textContent = '';
+  title.setAttribute('aria-label', TEXT);
+  const chars = Array.from(TEXT).map((ch, i) => {
+    const s = document.createElement('span');
+    s.className = 'ch';
+    s.setAttribute('aria-hidden', 'true');
+    s.style.setProperty('--i', i);
+    s.textContent = ch === ' ' ? '\u00A0' : ch;
+    title.appendChild(s);
+    return s;
+  });
+  title.classList.add('split');
+ 
+  /* 2. Cỡ chữ vừa màn hình + chia dải màu chung cho các ký tự */
+  function layout() {
+    title.style.fontSize = '100px';
+    const w100 = title.offsetWidth || 1;
+    const size = Math.max(24, Math.min(100 * (innerWidth * 0.9) / w100, innerHeight * 0.5, 380));
+    title.style.fontSize = size + 'px';
+    tw = title.offsetWidth || 1;
+    title.style.setProperty('--tw', tw + 'px');
+    chars.forEach(c => c.style.setProperty('--off', c.offsetLeft + 'px'));
+  }
+ 
+  function resizeCanvas() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    canvas.width  = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+ 
+  /* 3. Màu hạt sáng theo giao diện sáng/tối */
+  let spark = '255,255,255';
+  function readTheme() {
+    const v = getComputedStyle(document.documentElement).getPropertyValue('--spark').trim();
+    if (v) spark = v;
+  }
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTheme);
+  new MutationObserver(readTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+ 
+  /* 4. Hạt sáng bay chậm phía sau */
+  const motes = [];
+  function newMote(anywhere) {
+    return {
+      x: Math.random() * W,
+      y: anywhere ? Math.random() * H : H + 10,
+      r: .8 + Math.random() * 2.2,
+      vy: 8 + Math.random() * 22,
+      sw: Math.random() * 6.28, sf: .4 + Math.random() * .9,
+      ph: Math.random() * 6.28, tw: 1 + Math.random() * 2
+    };
+  }
+  function seedMotes() {
+    motes.length = 0;
+    const n = Math.max(24, Math.min(70, Math.round(W * H / 20000)));
+    for (let i = 0; i < n; i++) motes.push(newMote(true));
+  }
+ 
+  /* 5. Pháo giấy khi chạm/nhấp */
+  const bits = [];
+  const COLORS = ['#ff4d8d', '#ff9d3d', '#ffe14d', '#4dffb8', '#4dc3ff', '#9b6bff'];
+  function burst(x, y) {
+    const n = W < 600 ? 46 : 72;
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * 6.28, sp = 160 + Math.random() * 520;
+      bits.push({
+        x, y,
+        vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 180,
+        rot: Math.random() * 6.28, vr: (Math.random() - .5) * 14,
+        w: 5 + Math.random() * 7, h: 3 + Math.random() * 5,
+        c: COLORS[i % COLORS.length],
+        life: 0, ttl: 1.3 + Math.random() * .9,
+        round: Math.random() < .3
+      });
+    }
+    if (bits.length > 500) bits.splice(0, bits.length - 500);
+  }
+  function pulse() {
+    if (!chars[0].animate) return;
+    chars.forEach((c, i) => c.animate(
+      [{ scale: 1 }, { scale: 1.3 }, { scale: 1 }],
+      { duration: 560, delay: i * 45, easing: 'cubic-bezier(.3,1.6,.5,1)' }
+    ));
+  }
+  function dismissHint() {
+    if (!hint) return;
+    const o = parseFloat(getComputedStyle(hint).opacity);
+    if (o > .05) hint.classList.add('gone'); else hint.style.display = 'none';
+    hint = null;
+  }
+  function boom(x, y) {
+    if (reduce) return;
+    burst(x, y); pulse(); dismissHint();
+  }
+ 
+  /* 6. Vòng lặp: nghiêng chữ theo con trỏ, dải màu chảy, vẽ hạt */
+  const pointer = { x: .5, y: .5, tx: .5, ty: .5 };
+  let lastMove = -1e9;
+  let prev = performance.now();
+ 
+  function draw(dt, t) {
+    ctx.clearRect(0, 0, W, H);
+ 
+    for (const m of motes) {
+      m.y -= m.vy * dt;
+      m.x += Math.sin(t * m.sf + m.sw) * 12 * dt;
+      if (m.y < -10) Object.assign(m, newMote(false));
+      const a = .18 + .5 * (.5 + .5 * Math.sin(t * m.tw + m.ph));
+      ctx.fillStyle = 'rgba(' + spark + ',' + a.toFixed(3) + ')';
+      ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, 6.2832); ctx.fill();
+    }
+ 
+    for (let i = bits.length - 1; i >= 0; i--) {
+      const b = bits[i];
+      b.life += dt;
+      if (b.life >= b.ttl) { bits.splice(i, 1); continue; }
+      const drag = Math.pow(.3, dt);
+      b.vx *= drag;
+      b.vy = b.vy * drag + 820 * dt;
+      b.x += b.vx * dt; b.y += b.vy * dt; b.rot += b.vr * dt;
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, (b.ttl - b.life) / (b.ttl * .35));
+      ctx.translate(b.x, b.y);
+      ctx.rotate(b.rot);
+      ctx.fillStyle = b.c;
+      if (b.round) { ctx.beginPath(); ctx.arc(0, 0, b.h * .7, 0, 6.2832); ctx.fill(); }
+      else { ctx.scale(1, Math.abs(Math.cos(b.rot * 1.5)) * .8 + .2); ctx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h); }
+      ctx.restore();
+    }
+  }
+ 
+  function tick(now) {
+    const dt = Math.min((now - prev) / 1000, .05);
+    prev = now;
+    const t = now / 1000;
+ 
+    // không ai chạm thì chữ tự nghiêng nhẹ qua lại
+    if (now - lastMove > 2500) {
+      pointer.tx = .5 + .13 * Math.sin(t * .55);
+      pointer.ty = .5 + .11 * Math.cos(t * .42);
+    }
+    const k = Math.min(1, dt * 4);
+    pointer.x += (pointer.tx - pointer.x) * k;
+    pointer.y += (pointer.ty - pointer.y) * k;
+ 
+    stage.style.setProperty('--mx', (pointer.x * 100).toFixed(1) + '%');
+    stage.style.setProperty('--my', (pointer.y * 100).toFixed(1) + '%');
+    tilt.style.transform = 'perspective(1000px) rotateX(' + ((.5 - pointer.y) * 16).toFixed(2) +
+                           'deg) rotateY(' + ((pointer.x - .5) * 22).toFixed(2) + 'deg)';
+    title.style.setProperty('--shift', ((t * tw / 9) % tw).toFixed(1) + 'px');
+ 
+    draw(dt, t);
+    requestAnimationFrame(tick);
+  }
+ 
+  /* 7. Khởi động */
+  resizeCanvas();
+  readTheme();
+  layout();
+ 
+  const fontsReady = (document.fonts && document.fonts.load)
+    ? Promise.race([
+        document.fonts.load('900 100px "Be Vietnam Pro"', TEXT).catch(() => {}),
+        new Promise(r => setTimeout(r, 1500))
+      ])
+    : Promise.resolve();
+  fontsReady.then(() => { layout(); title.classList.add('ready'); });
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', layout);
+ 
+  let rz = 0;
+  addEventListener('resize', () => {
+    cancelAnimationFrame(rz);
+    rz = requestAnimationFrame(() => { resizeCanvas(); layout(); });
+  });
+ 
+  if (reduce) {
+    if (hint) { hint.remove(); hint = null; }
+  } else {
+    seedMotes();
+    addEventListener('pointermove', e => {
+      pointer.tx = e.clientX / W; pointer.ty = e.clientY / H; lastMove = performance.now();
+    }, { passive: true });
+    addEventListener('pointerdown', e => { if (e.button > 0) return; boom(e.clientX, e.clientY); });
+    addEventListener('keydown', e => {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); boom(W / 2, H / 2); }
+    });
+    requestAnimationFrame(tick);
+  }
+})();
+</script>
+</body>
+</html>
+ 
